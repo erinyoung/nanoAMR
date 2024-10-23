@@ -27,6 +27,7 @@ conda install -c bioconda nanoamr
 Install dependencies:
 - [blast](https://www.ncbi.nlm.nih.gov/books/NBK569861/)
 - [amrfinder](https://github.com/ncbi/amr/wiki/Installing-AMRFinder)
+- [seqkit](https://bioinf.shenwei.me/seqkit/)
 
 ```
 git clone https://github.com/erinyoung/nanoAMR
