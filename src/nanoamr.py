@@ -9,23 +9,28 @@ from src.utils.seqkit import run_seqkit
 from src.utils.blast import run_blast
 from src.utils.reformat_fasta_header import reformat_fasta_header
 from src.utils.check_versions import check_versions
+from src.utils.blast_to_df import blast_to_df
+from src.utils.group_differences import group_differences
+from src.utils.graph_differences import graph_differences
+from src.utils.num_reads import num_reads
+from src.utils.graph_mutation_curve import graph_mutation_curve
 
 def main():
     """Main function to run the script."""
     args = parse_args()
 
-    logging.basicConfig(format='%(asctime)s - %(message)s',
-        datefmt = '%y-%b-%d %H:%M:%S',
+    logging.basicConfig(format="%(asctime)s - %(message)s",
+        datefmt = "%y-%b-%d %H:%M:%S",
         level=args.loglevel.upper())
 
-    logging.info(f'Reference fasta :\t{args.fasta}')
-    logging.info(f'Nanopore reads :\t{args.reads}')
+    logging.info(f"Reference fasta :\t{args.fasta}")
+    logging.info(f"Nanopore reads :\t{args.reads}")
     check_versions()
-    exit
-    logging.info(f'Num threads :\t{str(args.threads)}')
+
+    logging.info(f"Num threads :\t{str(args.threads)}")
     if args.gene:
-        logging.info(f'Regex str :\t{args.gene}')
-    logging.info(f'Result dir :\t{args.outdir}')
+        logging.info(f"Regex str :\t{args.gene}")
+    logging.info(f"Result dir :\t{args.outdir}")
 
     if os.path.exists(args.outdir):
         logging.fatal("FATAL: outdir directory already exists")
@@ -34,16 +39,15 @@ def main():
         os.mkdir(args.outdir)
 
     with tempfile.TemporaryDirectory(dir = args.outdir) as temp_dir:
-        pre_amr_fasta = run_amrfinder(args)
-        amr_fasta = reformat_fasta_header(args, pre_amr_fasta) 
+        pre_amr_fasta = run_amrfinder(args, temp_dir)
+        amr_fasta = reformat_fasta_header(args, temp_dir, pre_amr_fasta) 
         nanopore_fasta = run_seqkit(args, temp_dir)
-        blast_results = run_blast(args, nanopore_fasta, amr_fasta)
-        # TODO :
-        # convert blast output to pandas df
-        # current header : qaccver saccver pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq
-        # for each oxagene_node: , get the length and position of each difference
-
-
+        total_reads = num_reads(nanopore_fasta)
+        blast_results = run_blast(args.outdir, nanopore_fasta, amr_fasta)
+        blast_df = blast_to_df(blast_results)
+        group_df = group_differences(blast_df)
+        graph_differences(args, group_df, total_reads)
+        graph_mutation_curve(args, blast_df)
 
 if __name__ == "__main__":
     main()
