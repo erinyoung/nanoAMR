@@ -38,19 +38,22 @@ def parse_args():
         "-g", "--gene", 
         default="",
         type=str,
-        help="String used for regex to limit results to subset of genes (examples: bla for all beta-lactamases or KPC for KPCs)."
+        help=(
+            "String used for regex to limit results to a subset of genes "
+            "(examples: bla for all beta-lactamases or KPC for KPCs)."
+        )
     )
 
-    parser.add_argument('-log', '--loglevel',
+    parser.add_argument("-log", "--loglevel",
         required = False,
         type = str,
-        help = 'Logging level',
-        default = 'INFO'
+        help = "Logging level",
+        default = "INFO"
         )
 
-    parser.add_argument('-v', '--version',
-        help='Print version and exit',
-        action = 'version'
+    parser.add_argument("-v", "--version",
+        help="Print version and exit",
+        action = "version"
         )
 
     return parser.parse_args()

@@ -1,10 +1,18 @@
 import subprocess
 import logging
 
-def run_seqkit(args, tmp):
-    """Run seqkit on nanopore reads to convert them to fasta."""
+def run_seqkit(args, temp_dir):
+    """
+    Run SeqKit on nanopore reads to convert them to FASTA format.
 
-    # TODO : put fasta file in tmp directory 
+    Args:
+        args: Command-line arguments containing `reads` and `threads`.
+        temp_dir (str): Path to the temporary directory for output.
+
+    Returns:
+        str: Path to the output FASTA file.
+    """
+
     logging.info(f"Running SeqKit on {args.reads}")
     
     command = [
@@ -12,11 +20,10 @@ def run_seqkit(args, tmp):
         "fq2fa",
         args.reads,
         "--threads", str(args.threads),
-        #"--out-file", f"{tmp}/nanopore.fasta",
-        "--out-file", f"{args.outdir}/nanopore.fasta",
+        "--out-file", f"{temp_dir}/nanopore.fasta",
     ]
     
-    logging.debug(f"Running command: {' '.join(command)}")
+    logging.debug(f"Running command: {" ".join(command)}")
 
     try:
         result = subprocess.run(
@@ -26,18 +33,17 @@ def run_seqkit(args, tmp):
             stderr=subprocess.PIPE
             )
 
-        logging.debug(f"Command output:\n{result.stdout}")
-            
+        logging.debug(f"Command output:\n{result.stdout.decode()}")
+
         if result.stderr:
-            logging.error(f"Command error output:\n{result.stderr}")
+            logging.error(f"Command error output:\n{result.stderr.decode()}")
 
         logging.info("SeqKit completed successfully.")
 
     except subprocess.CalledProcessError as e:
         logging.error(f"Error running SeqKit: {e}")
-        logging.error(f"Command output:\n{e.stdout}")
-        logging.error(f"Command error output:\n{e.stderr}")
+        logging.error(f"Command output:\n{e.stdout.decode()}")
+        logging.error(f"Command error output:\n{e.stderr.decode()}")
+    
 
-    #return f"{tmp}/nanopore.fasta"
-
-    return f"{args.outdir}/nanopore.fasta"
+    return f"{temp_dir}/nanopore.fasta"
