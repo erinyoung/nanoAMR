@@ -1,19 +1,28 @@
 import subprocess
 import logging
 
-def reformat_fasta_header(args, fasta):
-    """Fix amr fasta."""
+def reformat_fasta_header(args, temp_dir, fasta):
+    """
+    Adjust the headers of an AMRFinder FASTA file.
+
+    Args:
+        args: Command-line arguments.
+        temp_dir (str): Path to the temporary directory for output.
+        fasta (str): Path to the input FASTA file.
+
+    Returns:
+        str: Path to the reformatted FASTA file.
+    """
 
     logging.info("Adjusting AMRFinder fasta file")
 
-    # TODO : put this in tmp directory
     # TODO : add gene regex
 
-    with open(fasta, 'r') as infile, open(f"{args.outdir}/amr.fasta", 'w') as outfile:
+    with open(fasta, "r") as infile, open(f"{temp_dir}/amr.fasta", "w") as outfile:
         for line in infile:
             line = line.strip() 
             
-            if line.startswith('>'):
+            if line.startswith(">"):
                 gene = line.split()[2]
                 node = f"{line.split()[0].replace(">","")}"
                 logging.debug(f"{gene} found on {node}")
@@ -23,4 +32,4 @@ def reformat_fasta_header(args, fasta):
 
     logging.info("Adjusted AMRFinder fasta file headers")
 
-    return f"{args.outdir}/amr.fasta"
+    return f"{temp_dir}/amr.fasta"
